@@ -3,7 +3,6 @@ package main
 import (
 	"flag"
 	"fmt"
-	"io"
 	"os"
 	"sort"
 	"strings"
@@ -30,8 +29,8 @@ func main() {
 }
 
 func sortIndexes() (err error) {
-	var in io.Reader
-	var out io.Writer
+	var in *os.File
+	var out *os.File
 
 	var input string
 	var output string
@@ -49,7 +48,10 @@ func sortIndexes() (err error) {
 	}
 
 	if output != "" {
-		out, err = os.OpenFile(output, os.O_WRONLY, 0644)
+		out, err = os.Create(output)
+		if err != nil {
+			return
+		}
 	} else {
 		out = os.Stdout
 	}
@@ -62,5 +64,9 @@ func sortIndexes() (err error) {
 	sort.Slice(index.Indexes, func(i, j int) bool {
 		return strings.Compare(fmt.Sprintf("%+v", index.Indexes[i]), fmt.Sprintf("%+v", index.Indexes[j])) < 0
 	})
-	return yaml.NewEncoder(out).Encode(index)
+	err = yaml.NewEncoder(out).Encode(index)
+	if err != nil {
+		return
+	}
+	return out.Close()
 }
