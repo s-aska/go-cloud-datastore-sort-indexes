@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"io"
 	"os"
 	"sort"
@@ -59,7 +60,7 @@ func sortIndexes() (err error) {
 		return
 	}
 	sort.Slice(index.Indexes, func(i, j int) bool {
-		return strings.Compare(index.Indexes[i].Kind, index.Indexes[j].Kind) < 0
+		return strings.Compare(fmt.Sprintf("%+v", index.Indexes[i]), fmt.Sprintf("%+v", index.Indexes[j])) < 0
 	})
 	return yaml.NewEncoder(out).Encode(index)
 }
